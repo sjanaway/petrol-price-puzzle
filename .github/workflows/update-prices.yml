@@ -25,6 +25,8 @@ jobs:
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: main
 
       - uses: actions/setup-node@v7
         with:
@@ -37,9 +39,18 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add site/data/prices.json
-          git diff --cached --quiet || git commit -m "Update fuel prices $(date -u +%Y-%m-%d)"
-          git push
+          # If main moved on while this run was going (another run, or a push),
+          # start again from the latest main so no history is lost.
+          for attempt in 1 2 3; do
+            git add site/data/prices.json
+            git diff --cached --quiet && break
+            git commit -m "Update fuel prices $(date -u +%Y-%m-%d)"
+            git push && break
+            echo "Push rejected, retrying from latest main (attempt $attempt)"
+            git fetch origin main
+            git reset --hard origin/main
+            node scripts/update-prices.mjs
+          done
 
       - uses: actions/configure-pages@v6
 
