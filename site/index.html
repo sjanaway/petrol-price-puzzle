@@ -1,0 +1,753 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Petrol Price Puzzle</title>
+<meta name="description" content="Why is UK petrol so expensive in 2026 when oil companies are making record profits? An interactive explainer.">
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="website">
+<meta property="og:title" content="The Petrol Price Puzzle">
+<meta property="og:description" content="Why is UK petrol so expensive in 2026 when oil companies are making record profits? An interactive explainer.">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='10' y='8' width='30' height='50' rx='4' fill='%2314191f'/%3E%3Crect x='15' y='14' width='20' height='12' rx='2' fill='%23ffb21f'/%3E%3Cpath d='M40 22h6a4 4 0 0 1 4 4v20a3 3 0 0 0 6 0V18l-6-6' fill='none' stroke='%2314191f' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..100,500..900&family=Public+Sans:ital,wght@0,400;0,600;0,700;1,400&family=Share+Tech+Mono&display=swap">
+<style>
+html { scroll-behavior: smooth; }
+body { margin: 0; -webkit-font-smoothing: antialiased; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+/* Layout: a forecourt. One readable column; the pump's amber digit display is the recurring device, and every litre is drawn as one stacked bar split by who gets the money. */
+:root {
+  --bg: #f1f3f5;
+  --surface: #ffffff;
+  --surface-2: #e6eaee;
+  --ink: #1b232c;
+  --muted: #5a6672;
+  --line: #cfd6dd;
+  --pump: #14191f;          /* pump display housing */
+  --digit: #ffb21f;         /* amber digits */
+  --tax: #4f55c9;           /* government */
+  --crude: #8a5524;         /* crude oil */
+  --refine: #158080;        /* refining & blending */
+  --deliver: #7c8794;       /* delivery */
+  --retail: #c97a00;        /* forecourt */
+  --up: #c2410c;
+  --down: #2f7d3a;
+  --f-display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "Public Sans", "Segoe UI", system-ui, sans-serif;
+  --f-digit: "Share Tech Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --radius: 12px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11161c; --surface: #19212a; --surface-2: #222c37; --ink: #e7ecf1; --muted: #9aa7b4; --line: #2f3b47;
+    --pump: #0a0d11; --digit: #ffb21f;
+    --tax: #8e93ff; --crude: #d39255; --refine: #3cc1bd; --deliver: #a2adb9; --retail: #f2a93b;
+    --up: #ff8a57; --down: #6fcf7c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11161c; --surface: #19212a; --surface-2: #222c37; --ink: #e7ecf1; --muted: #9aa7b4; --line: #2f3b47;
+  --pump: #0a0d11; --digit: #ffb21f;
+  --tax: #8e93ff; --crude: #d39255; --refine: #3cc1bd; --deliver: #a2adb9; --retail: #f2a93b;
+  --up: #ff8a57; --down: #6fcf7c;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 17px; line-height: 1.6; }
+h1, h2, h3 { font-family: var(--f-display); text-wrap: balance; margin: 0; line-height: 1.05; }
+h1 { font-size: clamp(2.2rem, 6.5vw, 3.7rem); font-weight: 850; font-stretch: 80%; letter-spacing: -.01em; }
+h2 { font-size: clamp(1.6rem, 4vw, 2.2rem); font-weight: 800; font-stretch: 85%; }
+h3 { font-size: 1.15rem; font-weight: 700; font-stretch: 90%; }
+p { margin: 0; max-width: 66ch; }
+a { color: inherit; text-underline-offset: 3px; }
+
+.wrap { max-width: 920px; margin: 0 auto; padding-inline: 20px; padding-block: 44px 80px; display: flex; flex-direction: column; gap: 76px; }
+section { display: flex; flex-direction: column; gap: 18px; }
+.eyebrow { font-size: .78rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.lede { font-size: 1.15rem; }
+.note { background: var(--surface-2); border-radius: 10px; padding: 14px 18px; font-size: .97rem; }
+
+/* Hero */
+.hero { gap: 24px; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 28px; align-items: center; }
+@media (max-width: 700px) { .hero-grid { grid-template-columns: 1fr; } }
+.pumpface { background: var(--pump); border-radius: 14px; padding: 18px 22px; display: grid; gap: 10px; min-width: 250px; box-shadow: inset 0 0 0 2px #2a333d; }
+.pumpface .row { display: flex; justify-content: space-between; align-items: baseline; gap: 18px; }
+.pumpface .lab { font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: #8d99a6; font-weight: 700; }
+.lcd { font-family: var(--f-digit); color: var(--digit); font-size: 2.6rem; line-height: 1; text-shadow: 0 0 12px rgba(255,178,31,.35); font-variant-numeric: tabular-nums; }
+.lcd.sm { font-size: 1.5rem; }
+.answer { border-left: 5px solid var(--digit); padding: 4px 0 4px 18px; font-size: 1.12rem; max-width: 66ch; }
+.toc { display: flex; flex-wrap: wrap; gap: 8px; }
+.toc a { text-decoration: none; border: 1.5px solid var(--line); border-radius: 999px; padding: 4px 12px; font-size: .9rem; }
+.toc a:hover, .toc a:focus-visible { border-color: var(--ink); }
+
+/* Panel */
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 22px; display: flex; flex-direction: column; gap: 20px; }
+.presets { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn { appearance: none; font: inherit; font-weight: 700; font-size: .92rem; cursor: pointer; border-radius: 999px; padding: 7px 16px; border: 1.5px solid var(--line); background: transparent; color: var(--ink); }
+.btn[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.btn:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px solid var(--digit); outline-offset: 2px; }
+
+.litre-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 14px; }
+.litre-head .pumpface { min-width: 0; padding: 12px 18px; }
+.taxshare { font-size: 1rem; }
+.taxshare b { color: var(--tax); }
+
+.bar { display: flex; height: 64px; border-radius: 8px; overflow: hidden; background: var(--surface-2); }
+.bar > div { transition: flex-basis .35s ease; display: flex; align-items: center; justify-content: center; min-width: 0; overflow: hidden; color: #fff; font-weight: 700; font-size: .85rem; font-variant-numeric: tabular-nums; white-space: nowrap; border-right: 2px solid var(--surface); }
+.bar > div:last-child { border-right: 0; }
+.seg-tax { background: var(--tax); }
+.seg-crude { background: var(--crude); }
+.seg-refine { background: var(--refine); }
+.seg-deliver { background: var(--deliver); }
+.seg-retail { background: var(--retail); }
+:root .bar > div { color: var(--surface); }
+.scale { display: flex; justify-content: space-between; font-size: .78rem; color: var(--muted); font-variant-numeric: tabular-nums; margin-top: -12px; }
+
+.breakdown { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; }
+.bd { border-radius: 10px; padding: 10px 12px; background: var(--surface-2); display: flex; flex-direction: column; gap: 2px; min-width: 0; border-top: 5px solid var(--c); }
+.bd .who { font-size: .82rem; color: var(--muted); font-weight: 600; }
+.bd .val { font-family: var(--f-display); font-size: 1.5rem; font-weight: 800; font-stretch: 85%; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.bd .chg { font-size: .82rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.chg.up { color: var(--up); } .chg.down { color: var(--down); } .chg.flat { color: var(--muted); }
+
+.sliders { display: grid; grid-template-columns: 1fr 1fr; gap: 18px 28px; }
+@media (max-width: 640px) { .sliders { grid-template-columns: 1fr; } }
+.control { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.control-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.control label { font-weight: 700; font-size: .95rem; }
+.control .v { font-family: var(--f-digit); font-size: 1.15rem; font-variant-numeric: tabular-nums; }
+.control .help { font-size: .84rem; color: var(--muted); }
+input[type=range] { width: 100%; accent-color: var(--digit); height: 26px; }
+
+/* Barrel economics */
+.barrel { display: flex; flex-direction: column; gap: 10px; }
+.brow { display: grid; grid-template-columns: 8.5em minmax(0, 1fr); align-items: center; gap: 12px; }
+.brow .lbl { font-size: .9rem; font-weight: 600; }
+.btrack { height: 40px; background: var(--surface-2); border-radius: 6px; display: flex; overflow: hidden; }
+.btrack > div { display: flex; align-items: center; padding-inline: 8px; font-size: .82rem; font-weight: 700; color: var(--surface); white-space: nowrap; overflow: hidden; transition: width .35s ease; font-variant-numeric: tabular-nums; }
+.b-cost { background: var(--deliver); }
+.b-profit { background: var(--down); }
+.bigstat { display: flex; flex-wrap: wrap; gap: 12px 28px; }
+.bigstat div { display: flex; flex-direction: column; }
+.bigstat .n { font-family: var(--f-display); font-weight: 850; font-stretch: 80%; font-size: 2.2rem; line-height: 1; font-variant-numeric: tabular-nums; }
+.bigstat .k { font-size: .85rem; color: var(--muted); }
+
+/* Shock chart */
+.shock { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 22px; align-items: start; }
+@media (max-width: 760px) { .shock { grid-template-columns: 1fr; } }
+.shock svg { width: 100%; height: auto; display: block; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: .85rem; color: var(--muted); }
+.legend span::before { content: ""; display: inline-block; width: 18px; height: 4px; border-radius: 2px; margin-right: 6px; vertical-align: middle; background: currentColor; }
+.legend .lo { color: var(--crude); } .legend .lc { color: var(--refine); }
+
+/* Who wins */
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: .95rem; }
+th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: .75rem; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+td:first-child { font-weight: 700; white-space: nowrap; }
+.pill { display: inline-block; border-radius: 999px; padding: 1px 10px; font-size: .78rem; font-weight: 700; white-space: nowrap; }
+.pill.win { background: color-mix(in srgb, var(--down) 18%, transparent); color: var(--down); }
+.pill.lose { background: color-mix(in srgb, var(--up) 18%, transparent); color: var(--up); }
+.pill.mixed { background: var(--surface-2); color: var(--muted); }
+
+.points { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.point { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.point p { font-size: .97rem; }
+
+.short-version { background: var(--pump); color: #e9edf1; border-radius: 14px; padding: 26px; display: flex; flex-direction: column; gap: 14px; }
+.short-version h2 { color: var(--digit); }
+.short-version p { font-size: 1.08rem; }
+footer { font-size: .85rem; color: var(--muted); display: flex; flex-direction: column; gap: 8px; }
+footer ul { margin: 0; padding-left: 1.2em; }
+
+/* Why section */
+.chain { display: grid; grid-template-columns: minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr) auto minmax(0,1fr); gap: 8px; align-items: stretch; }
+@media (max-width: 760px) { .chain { grid-template-columns: 1fr; } .chain .arrow { transform: rotate(90deg); justify-self: center; } }
+.link { background: var(--surface-2); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 2px; min-width: 0; transition: background .3s, box-shadow .3s; }
+.link .who { font-size: .8rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .06em; }
+.link .keeps { font-family: var(--f-display); font-weight: 800; font-stretch: 85%; font-size: 1.35rem; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.link .sub { font-size: .85rem; color: var(--muted); }
+.link.hot { box-shadow: inset 0 0 0 2px var(--up); }
+.link.pump { background: var(--pump); }
+.link.pump .keeps { font-family: var(--f-digit); color: var(--digit); font-weight: 400; }
+.link.pump .who, .link.pump .sub { color: #8d99a6; }
+.arrow { align-self: center; color: var(--muted); font-size: 1.3rem; }
+.users { display: grid; grid-template-columns: repeat(10, minmax(0, 1fr)); gap: 6px; }
+.user { border-radius: 6px; padding: 6px 4px; background: var(--surface-2); font-size: .7rem; line-height: 1.2; text-align: center; min-height: 3.6em; display: flex; align-items: center; justify-content: center; overflow-wrap: anywhere; transition: background .3s, color .3s; }
+.user.cut { background: transparent; box-shadow: inset 0 0 0 1.5px var(--line); color: var(--muted); text-decoration: line-through; }
+.user.dry { background: var(--up); color: var(--surface); font-weight: 700; }
+@media (max-width: 520px) { .users { grid-template-columns: repeat(5, minmax(0, 1fr)); } }
+.ration-out { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 18px; align-items: center; }
+@media (max-width: 560px) { .ration-out { grid-template-columns: 1fr; } }
+.ration-text { display: flex; flex-direction: column; gap: 6px; }
+.live { display: flex; align-items: baseline; gap: 10px; font-size: .9rem; color: var(--muted); }
+.live #live-text { flex: 1; min-width: 0; }
+.live .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); flex: none; }
+.live.on .dot { background: var(--down); box-shadow: 0 0 0 0 color-mix(in srgb, var(--down) 60%, transparent); animation: pulse 2.4s infinite; }
+.live.stale .dot { background: var(--digit); }
+@keyframes pulse { 70% { box-shadow: 0 0 0 8px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+.trend svg { width: 100%; height: auto; display: block; }
+.trend .cap { font-size: .88rem; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } .live.on .dot { animation: none; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+
+  <section class="hero">
+    <p class="eyebrow" id="hero-eyebrow">UK petrol · 28 September 2026</p>
+    <div class="hero-grid">
+      <h1 id="hero-title">Petrol is up 42p a litre. Oil companies' profits have soared. Are they ripping us off?</h1>
+      <div class="pumpface" id="hero-pump" aria-live="polite">
+        <div class="row"><span class="lab" id="hero-pump-lab">Unleaded · UK average</span></div>
+        <div class="row"><span class="lcd" id="hero-petrol">174.1</span><span class="lab">p / litre</span></div>
+        <div class="row"><span class="lab">Diesel</span><span class="lcd sm" id="hero-diesel">199.2</span></div>
+        <div class="row"><span class="lab">Unleaded, late Feb</span><span class="lcd sm">132.4</span></div>
+      </div>
+    </div>
+    <p class="answer"><b>The short answer:</b> oil companies didn't choose a higher price. The Iran conflict choked off shipping through the Strait of Hormuz, so there is less oil than the world wants, and buyers bid against each other for what's left. Nothing physically stops a producer selling at the old price. But if it did, that cheap oil would be bought up and resold at the going rate, and your pump price wouldn't change. The only difference would be who pockets the extra. There are some fair criticisms too, and they're covered further down.</p>
+    <nav class="toc" aria-label="Sections">
+      <a href="#why">Why don't they keep the old price?</a>
+      <a href="#litre">Where your money goes</a>
+      <a href="#barrel">Why profits jump</a>
+      <a href="#shock">Why prices spike so hard</a>
+      <a href="#who">Who wins and loses</a>
+      <a href="#fair">The fair criticisms</a>
+      <a href="#short">The short version</a>
+    </nav>
+    <p class="live" id="live"><span class="dot" aria-hidden="true"></span><span id="live-text">Showing RAC averages from 28 September 2026.</span></p>
+  </section>
+
+  <section id="why">
+    <p class="eyebrow">1 · The core question</p>
+    <h2>If it costs no more to pump, why charge more for it?</h2>
+    <p>This is the right question. A producer's costs haven't changed, so why doesn't it carry on selling at $70? It could. Nothing forces it to charge $100. But there are two reasons why it wouldn't help you if it did.</p>
+
+    <h3>Reason 1: the cheap oil wouldn't reach you</h3>
+    <p>Oil is traded around the world, and every refinery is competing for the same barrels. A producer that sells below the going rate doesn't make petrol cheaper. It hands a gift to whoever buys from it first. Move the slider to see where the money goes.</p>
+    <div class="panel">
+      <div class="control">
+        <div class="control-row"><label for="s-gen">The producer's selling price</label><span class="v" id="v-gen"></span></div>
+        <input type="range" id="s-gen" min="70" max="100" step="1" value="70">
+        <span class="help">The world price refineries are paying is $100. It cost the producer $30 to pump the barrel.</span>
+      </div>
+      <div class="chain" aria-live="polite">
+        <div class="link"><span class="who">Oil producer</span><span class="keeps" id="k-prod"></span><span class="sub">sells at <b id="c-sell"></b></span></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="link" id="link-trader"><span class="who">Trader who bought it</span><span class="keeps" id="k-trade"></span><span class="sub">resells at <b>$100</b></span></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="link"><span class="who">Refinery</span><span class="keeps">pays $100</span><span class="sub">same as any other barrel</span></div>
+        <div class="arrow" aria-hidden="true">→</div>
+        <div class="link pump"><span class="who">Your pump price</span><span class="keeps" id="chain-pump">174p</span><span class="sub">unchanged</span></div>
+      </div>
+      <p class="note" id="gen-note"></p>
+    </div>
+
+    <h3>Reason 2: if everyone kept the old price, there still wouldn't be enough</h3>
+    <p>Suppose every producer agreed to stick at $70. About 6% of the oil people want still can't get through Hormuz, so not everyone can have what they want. Something has to decide who goes without. If price doesn't do it, queues and empty pumps do. Each square below is 2% of the fuel people want. Compare the two options.</p>
+    <div class="panel">
+      <div class="presets" role="group" aria-label="How is the shortage handled?">
+        <button class="btn" type="button" id="mode-market" aria-pressed="true">Let the price rise</button>
+        <button class="btn" type="button" id="mode-cap" aria-pressed="false">Hold the price at $70</button>
+        <button class="btn" type="button" id="reshuffle" hidden>Run the queue again</button>
+      </div>
+      <div class="users" id="users" aria-hidden="true"></div>
+      <div class="ration-out" aria-live="polite">
+        <div class="pumpface"><div class="row"><span class="lab">Crude oil</span></div><div class="row"><span class="lcd" id="r-price">$100</span></div></div>
+        <div class="ration-text" id="r-text"></div>
+      </div>
+    </div>
+    <p>A rising price also helps end the shortage. At $100 it's worth tankers taking the long way round, pumping more in the US and Brazil, and releasing oil from reserves. That's largely why prices fell back to pre-war levels by June after the first spike. At a capped price, nobody has a reason to do any of that.</p>
+
+    <div class="points">
+      <div class="point">
+        <h3>BP and Shell are small players</h3>
+        <p>Between them they pump only around 3% of the world's oil. Most is produced by state-owned companies such as Saudi Aramco. Even if BP and Shell were generous, they couldn't move the world price.</p>
+      </div>
+      <div class="point">
+        <h3>Contracts follow the market</h3>
+        <p>Most crude is sold on long-term contracts priced against Brent. When Brent goes up, the contract price goes up with it automatically. Nobody sits down and decides to put the price up.</p>
+      </div>
+      <div class="point">
+        <h3>The honest downside</h3>
+        <p>Letting the price decide means people with less money cut back first. That's the real trade-off. It's why governments usually help with tax cuts or cash support rather than capping the price, which brings back the queues.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="litre">
+    <p class="eyebrow">2 · Take apart a litre</p>
+    <h2>Where does the money go when you fill up?</h2>
+    <p>Every litre is split between five groups. Switch between February and September to see which slices grew. Then move the sliders to see how each part feeds into the pump price.</p>
+    <div class="panel">
+      <div class="presets" role="group" aria-label="Choose a moment">
+        <button class="btn" type="button" id="pre-feb" aria-pressed="false">Late Feb 2026 (before the conflict)</button>
+        <button class="btn" type="button" id="pre-now" aria-pressed="true">Late Sept 2026</button>
+      </div>
+      <div class="litre-head">
+        <div class="pumpface" aria-live="polite">
+          <div class="row"><span class="lab">Pump price</span></div>
+          <div class="row"><span class="lcd" id="pump">174.1</span><span class="lab">p / litre</span></div>
+        </div>
+        <p class="taxshare" id="taxshare"></p>
+      </div>
+      <div class="bar" id="bar" aria-hidden="true">
+        <div class="seg-tax" id="b-tax"></div>
+        <div class="seg-crude" id="b-crude"></div>
+        <div class="seg-refine" id="b-refine"></div>
+        <div class="seg-deliver" id="b-deliver"></div>
+        <div class="seg-retail" id="b-retail"></div>
+      </div>
+      <div class="breakdown" id="breakdown"></div>
+      <div class="sliders">
+        <div class="control">
+          <div class="control-row"><label for="s-brent">Crude oil (Brent)</label><span class="v" id="v-brent"></span></div>
+          <input type="range" id="s-brent" min="40" max="140" step="0.5" value="100">
+          <span class="help">The world price of a barrel (159 litres), set on global markets in dollars.</span>
+        </div>
+        <div class="control">
+          <div class="control-row"><label for="s-fx">Pound vs dollar</label><span class="v" id="v-fx"></span></div>
+          <input type="range" id="s-fx" min="1.10" max="1.50" step="0.01" value="1.33">
+          <span class="help">Oil is bought in dollars, so a weaker pound makes it dearer.</span>
+        </div>
+        <div class="control">
+          <div class="control-row"><label for="s-refine">Refining, blending &amp; biofuel</label><span class="v" id="v-refine"></span></div>
+          <input type="range" id="s-refine" min="5" max="45" step="0.1" value="31">
+          <span class="help">Turning crude into petrol. Refiners can charge much more when fuel is scarce. For today, this is worked out as whatever is left of the pump price.</span>
+        </div>
+        <div class="control">
+          <div class="control-row"><label for="s-retail">Forecourt margin</label><span class="v" id="v-retail"></span></div>
+          <input type="range" id="s-retail" min="4" max="25" step="0.5" value="11">
+          <span class="help">What the petrol station keeps to cover staff, rent and profit.</span>
+        </div>
+      </div>
+      <p class="note"><b>The tax multiplier.</b> Fuel duty is a flat <span id="duty-note">52.95</span>p a litre. VAT at 20% is then added on top of everything, <em>including the duty</em>. So every extra penny of oil cost becomes 1.2p at the pump, and the Treasury's take rises when prices rise.</p>
+    </div>
+  </section>
+
+  <section id="barrel">
+    <p class="eyebrow">3 · Look at it from the oil field</p>
+    <h2>Why profits jump when prices do</h2>
+    <p>Pumping a barrel out of the ground costs roughly the same whether oil sells for $70 or $100. The wells, rigs, staff and pipelines are already paid for. So when the world price rises, nearly all of the increase is extra profit. The companies didn't raise the price. The market did, and they benefit.</p>
+    <div class="panel">
+      <div class="control">
+        <div class="control-row"><label for="s-barrel">World price of a barrel</label><span class="v" id="v-barrel"></span></div>
+        <input type="range" id="s-barrel" min="40" max="140" step="0.5" value="100">
+      </div>
+      <div class="barrel" aria-hidden="true">
+        <div class="brow"><span class="lbl">Before (≈$70)</span><div class="btrack"><div class="b-cost" id="bb-cost0"></div><div class="b-profit" id="bb-profit0"></div></div></div>
+        <div class="brow"><span class="lbl" id="bb-label">Now</span><div class="btrack"><div class="b-cost" id="bb-cost1"></div><div class="b-profit" id="bb-profit1"></div></div></div>
+      </div>
+      <div class="bigstat" aria-live="polite">
+        <div><span class="n" id="st-price">+43%</span><span class="k">rise in the oil price</span></div>
+        <div><span class="n" id="st-profit">+75%</span><span class="k">rise in profit per barrel</span></div>
+      </div>
+      <p class="note">This uses an illustrative $30 a barrel to find, pump and ship oil. Real costs range from under $10 in parts of the Middle East to $40 or more in the North Sea. The pattern is the same: a fixed cost plus a price that moves means profits swing much more than prices. BP and Shell also made extra money from trading and refining in a volatile market.</p>
+    </div>
+  </section>
+
+  <section id="shock">
+    <p class="eyebrow">4 · Supply and demand</p>
+    <h2>Why a small shortage causes a big price jump</h2>
+    <p>About a fifth of the world's seaborne oil normally passes through the Strait of Hormuz. Pipelines, reserves and other producers make up some of that loss, but not all of it. And people can't easily use less petrol: they still have to get to work and do the school run. When buyers can't cut back, the price has to rise a long way before supply and demand balance again.</p>
+    <div class="panel">
+      <div class="shock">
+        <div>
+          <svg id="shock-chart" viewBox="0 0 420 300" role="img" aria-label="How much prices rise as supply is lost, for oil and for a product with easy alternatives"></svg>
+          <div class="legend"><span class="lo">Oil (hard to do without)</span><span class="lc">Something with easy alternatives</span></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:16px;min-width:0">
+          <div class="control">
+            <div class="control-row"><label for="s-lost">World supply that can't get through</label><span class="v" id="v-lost"></span></div>
+            <input type="range" id="s-lost" min="0" max="10" step="0.5" value="6">
+          </div>
+          <div class="bigstat" aria-live="polite">
+            <div><span class="n" id="sh-oil" style="color:var(--crude)"></span><span class="k">oil price rise</span></div>
+            <div><span class="n" id="sh-other" style="color:var(--refine)"></span><span class="k">price rise for a product with alternatives</span></div>
+          </div>
+          <p class="help" style="font-size:.88rem;color:var(--muted)">Illustrative model. A short-term shortfall of around 5–6% is enough to push oil from $70 to about $100.</p>
+        </div>
+      </div>
+    </div>
+    <div class="panel trend" id="brent-panel" hidden>
+      <h3>What actually happened: Brent crude over the past year</h3>
+      <svg id="brent-chart" viewBox="0 0 640 250" role="img" aria-label="Brent crude oil price over the past year"></svg>
+      <p class="cap" id="brent-cap"></p>
+    </div>
+    <div class="panel trend" id="pump-panel" hidden>
+      <h3>UK pump prices since this page started tracking</h3>
+      <svg id="pump-chart" viewBox="0 0 640 250" role="img" aria-label="Average UK petrol and diesel prices over time"></svg>
+      <div class="legend"><span style="color:var(--retail)">Unleaded</span><span style="color:var(--tax)">Diesel</span></div>
+    </div>
+  </section>
+
+  <section id="who">
+    <p class="eyebrow">5 · Follow the money</p>
+    <h2>Who wins and who loses</h2>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Who</th><th>This year</th><th>Why</th></tr></thead>
+        <tbody>
+          <tr><td>Oil producers</td><td><span class="pill win">Big winners</span></td><td>Same cost to pump, much higher selling price. That includes BP and Shell, but also state-owned producers like Saudi Aramco, which pump most of the world's oil.</td></tr>
+          <tr><td>Refiners</td><td><span class="pill win">Winners</span></td><td>Refined fuel, especially diesel, is short worldwide. Refiners can charge far more than usual to turn crude into fuel.</td></tr>
+          <tr><td>The Treasury</td><td><span class="pill win">Winner</span></td><td>VAT is a percentage, so it collects more per litre. The Energy Profits Levy also takes a large share of profits from UK North Sea oil and gas.</td></tr>
+          <tr><td>Petrol stations</td><td><span class="pill mixed">Roughly flat</span></td><td>They keep about the same pennies per litre. People buying less fuel and paying more card fees can squeeze them.</td></tr>
+          <tr><td>Drivers</td><td><span class="pill lose">Losers</span></td><td id="who-drivers">About £22 more to fill a 55-litre petrol tank than in February, and about £30 more for diesel.</td></tr>
+          <tr><td>Everyone else</td><td><span class="pill lose">Losers</span></td><td>Fuel costs feed into food, deliveries and bus fares, which pushes up prices generally.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="fair">
+    <p class="eyebrow">6 · It's not all innocent</p>
+    <h2>The fair criticisms</h2>
+    <div class="points">
+      <div class="point">
+        <h3>Rockets and feathers</h3>
+        <p>Pump prices tend to shoot up quickly when oil rises and drift down slowly when it falls. The competition watchdog (CMA) found no sign of retailers cashing in on this crisis. It did find some were slow to pass on falls in wholesale costs, and its earlier review found supermarket fuel margins had crept up between 2019 and 2022.</p>
+      </div>
+      <div class="point">
+        <h3>Windfall profits</h3>
+        <p>These profits come from luck, not from better products or harder work. That's why there's a windfall tax on UK oil and gas profits (the Energy Profits Levy). People still argue about whether it is set at the right level and whether it should cover more.</p>
+      </div>
+      <div class="point">
+        <h3>Refining margins</h3>
+        <p>Refiners earn far more than usual when fuel is scarce. That isn't illegal, but it is a big part of why pump prices have risen faster than crude alone would explain. On the sliders above, refining makes up <span id="refine-share">nearly half</span> of the rise since February.</p>
+      </div>
+      <div class="point">
+        <h3>Shareholder payouts</h3>
+        <p>A lot of the extra profit goes to shareholders as dividends and buybacks rather than into new supply. Many of those shareholders are pension funds, so it often ends up in ordinary people's pensions.</p>
+      </div>
+    </div>
+    <p class="note"><b>What you can do:</b> prices still vary by 10p a litre or more between nearby stations. Since the government's Fuel Finder scheme started, every forecourt has had to publish its prices, so comparison apps and sites are now much more accurate.</p>
+  </section>
+
+  <section id="short" class="short-version">
+    <p class="eyebrow" style="color:#9aa7b4">If you only remember one thing</p>
+    <h2>The short version</h2>
+    <p>Oil is priced on a world market. When the Iran conflict cut supply through Hormuz, the price of every barrel went up, wherever it came from. That one event made petrol expensive and made oil producers rich at the same time. They didn't put the price up to get rich. The higher price made them rich.</p>
+    <p>Why not keep selling at the old price? Because the price isn't set by any one seller's costs. It's set by buyers around the world competing for oil that has become scarce. A producer that sold cheap would only enrich whoever bought from it first. If everyone held prices down, there still wouldn't be enough oil, and queues would decide who goes without instead.</p>
+    <p>Nearly half of what you pay is tax, and the VAT part grows as prices rise. Refiners are the other big winner. The reasonable complaints are about how slowly prices come back down, and whether windfall profits are taxed enough.</p>
+  </section>
+
+  <footer>
+    <p id="foot-data">Figures are rounded estimates built from public averages, meant to show how the pieces fit rather than to be exact. Pump prices: RAC averages for late Feb and 28 Sept 2026. The split between crude, refining and retail, and the $1.33 exchange rate, are approximations. Fuel duty is shown at 52.95p, with the 5p cut still in place.</p>
+    <ul>
+      <li><a href="https://commonslibrary.parliament.uk/research-briefings/cbp-10601/" target="_blank" rel="noopener">House of Commons Library: Middle East conflict and the UK economy</a></li>
+      <li><a href="https://brumble.co.uk/guides/are-petrol-prices-going-up" target="_blank" rel="noopener">Are petrol prices going up? (RAC figures, Oct 2026)</a></li>
+      <li><a href="https://www.gov.uk/government/collections/road-fuel-review" target="_blank" rel="noopener">CMA road fuel review and monitoring</a></li>
+      <li><a href="https://www.gov.uk/guidance/access-fuel-price-data" target="_blank" rel="noopener">Retailer fuel price data feeds (live pump prices)</a></li>
+      <li><a href="https://finance.yahoo.com/quote/BZ%3DF/" target="_blank" rel="noopener">Brent crude futures (Yahoo Finance)</a> and <a href="https://frankfurter.dev/" target="_blank" rel="noopener">ECB exchange rates (Frankfurter)</a></li>
+    </ul>
+  </footer>
+</main>
+
+<script>
+(function () {
+  const VAT = 0.20, DELIVER = 3, LITRES = 158.987, FEB_PETROL = 132.4, FEB_DIESEL = 145.1;
+  let DUTY = 52.95;
+  const presets = {
+    feb: { brent: 70, fx: 1.35, refine: 10.5, retail: 11, duty: 52.95 },
+    now: { brent: 100, fx: 1.33, refine: 31, retail: 11, duty: 52.95 },
+  };
+  const $ = (id) => document.getElementById(id);
+  const s = { brent: $('s-brent'), fx: $('s-fx'), refine: $('s-refine'), retail: $('s-retail') };
+
+  function compute(v) {
+    const crude = (v.brent / v.fx) / LITRES * 100;           // pence per litre
+    const duty = v.duty ?? DUTY;
+    const net = crude + v.refine + DELIVER + v.retail + duty;
+    const vat = net * VAT;
+    return { crude, refine: v.refine, deliver: DELIVER, retail: v.retail, duty, vat, tax: duty + vat, total: net + vat };
+  }
+  const base = compute(presets.feb);
+  const p1 = (n) => n.toFixed(1);
+
+  function chg(now, then) {
+    const d = now - then;
+    if (Math.abs(d) < 0.05) return `<span class="chg flat">same as Feb</span>`;
+    return `<span class="chg ${d > 0 ? 'up' : 'down'}">${d > 0 ? '+' : '−'}${p1(Math.abs(d))}p vs Feb</span>`;
+  }
+
+  function renderLitre() {
+    const v = { brent: +s.brent.value, fx: +s.fx.value, refine: +s.refine.value, retail: +s.retail.value, duty: DUTY };
+    const r = compute(v);
+    $('v-brent').textContent = '$' + v.brent;
+    $('v-fx').textContent = '$' + v.fx.toFixed(2);
+    $('v-refine').textContent = p1(v.refine) + 'p';
+    $('v-retail').textContent = p1(v.retail) + 'p';
+    $('pump').textContent = p1(r.total);
+
+    const segs = [['b-tax', r.tax, 'Tax'], ['b-crude', r.crude, 'Crude'], ['b-refine', r.refine, 'Refining'], ['b-deliver', r.deliver, ''], ['b-retail', r.retail, 'Forecourt']];
+    segs.forEach(([id, val, name]) => {
+      const el = $(id);
+      el.style.flex = `0 0 ${(val / r.total * 100).toFixed(2)}%`;
+      const pct = val / r.total;
+      el.textContent = pct > 0.14 ? `${name} ${Math.round(val)}p` : pct > 0.06 ? `${Math.round(val)}p` : '';
+    });
+
+    const taxPct = Math.round(r.tax / r.total * 100);
+    $('taxshare').innerHTML = `<b>${p1(r.tax)}p (${taxPct}%)</b> goes to the government.<br>Change since February: <b style="color:var(--${r.total >= base.total ? 'up' : 'down'})">${r.total >= base.total ? '+' : '−'}${p1(Math.abs(r.total - base.total))}p</b> a litre.`;
+
+    const rows = [
+      ['Fuel duty', r.duty, base.duty, 'var(--tax)'],
+      ['VAT (20%)', r.vat, base.vat, 'var(--tax)'],
+      ['Crude oil', r.crude, base.crude, 'var(--crude)'],
+      ['Refining & blending', r.refine, base.refine, 'var(--refine)'],
+      ['Delivery', r.deliver, base.deliver, 'var(--deliver)'],
+      ['Petrol station', r.retail, base.retail, 'var(--retail)'],
+    ];
+    $('breakdown').innerHTML = rows.map(([who, now, then, c]) =>
+      `<div class="bd" style="--c:${c}"><span class="who">${who}</span><span class="val">${p1(now)}p</span>${chg(now, then)}</div>`).join('');
+
+    const same = (a, b) => Math.abs(a - b) < 1e-6;
+    const match = Object.entries(presets).find(([, p]) => same(p.brent, v.brent) && same(p.fx, v.fx) && same(p.refine, v.refine) && same(p.retail, v.retail));
+    $('pre-feb').setAttribute('aria-pressed', String(!!match && match[0] === 'feb'));
+    $('pre-now').setAttribute('aria-pressed', String(!!match && match[0] === 'now'));
+  }
+  function applyPreset(k) {
+    const p = presets[k];
+    s.brent.value = p.brent; s.fx.value = p.fx; s.refine.value = p.refine; s.retail.value = p.retail;
+    renderLitre();
+  }
+  Object.values(s).forEach((el) => el.addEventListener('input', renderLitre));
+  $('pre-feb').addEventListener('click', () => applyPreset('feb'));
+  $('pre-now').addEventListener('click', () => applyPreset('now'));
+  renderLitre();
+
+  /* Barrel economics */
+  const COST = 30, BMAX = 140, BEFORE = 70;
+  const sb = $('s-barrel');
+  function setTrack(costId, profitId, price) {
+    $(costId).style.width = (Math.min(COST, price) / BMAX * 100) + '%';
+    $(costId).textContent = 'Cost $' + COST;
+    const prof = Math.max(0, price - COST);
+    $(profitId).style.width = (prof / BMAX * 100) + '%';
+    $(profitId).textContent = prof > 12 ? 'Profit $' + Math.round(prof) : '';
+  }
+  function renderBarrel() {
+    const p = +sb.value;
+    $('v-barrel').textContent = '$' + p;
+    $('bb-label').textContent = `At $${p}`;
+    setTrack('bb-cost0', 'bb-profit0', BEFORE);
+    setTrack('bb-cost1', 'bb-profit1', p);
+    const dp = (p / BEFORE - 1) * 100;
+    const dprof = ((Math.max(0, p - COST)) / (BEFORE - COST) - 1) * 100;
+    const sign = (n) => (n >= 0 ? '+' : '−') + Math.abs(Math.round(n)) + '%';
+    $('st-price').textContent = sign(dp);
+    $('st-profit').textContent = sign(dprof);
+    $('st-profit').style.color = dprof >= 0 ? 'var(--down)' : 'var(--up)';
+  }
+  sb.addEventListener('input', renderBarrel);
+  renderBarrel();
+
+  /* Supply shock */
+  const EO = 0.15, EC = 1.5, YMAX = 120, XMAX = 10;
+  const W = 420, H = 300, ml = 46, mr = 14, mt = 14, mb = 42;
+  const X = (x) => ml + x / XMAX * (W - ml - mr);
+  const Y = (y) => H - mb - y / YMAX * (H - mt - mb);
+  const rise = (lost, e) => (Math.pow(1 - lost / 100, -1 / e) - 1) * 100;
+  const sl = $('s-lost');
+  function path(e) {
+    const pts = [];
+    for (let x = 0; x <= XMAX + 1e-9; x += 0.1) {
+      const y = rise(x, e);
+      if (y > YMAX) break;
+      pts.push(`${X(x).toFixed(1)},${Y(y).toFixed(1)}`);
+    }
+    return 'M' + pts.join(' L');
+  }
+  function renderShock() {
+    const lost = +sl.value;
+    $('v-lost').textContent = lost + '%';
+    const ro = rise(lost, EO), rc = rise(lost, EC);
+    $('sh-oil').textContent = '+' + Math.round(ro) + '%';
+    $('sh-other').textContent = '+' + Math.round(rc) + '%';
+    let g = '';
+    for (let y = 0; y <= YMAX; y += 20) {
+      g += `<line x1="${ml}" x2="${W - mr}" y1="${Y(y)}" y2="${Y(y)}" stroke="var(--line)" stroke-width="1"/>`;
+      g += `<text x="${ml - 8}" y="${Y(y) + 4}" text-anchor="end" font-size="12" fill="var(--muted)">+${y}%</text>`;
+    }
+    for (let x = 0; x <= XMAX; x += 2) g += `<text x="${X(x)}" y="${H - mb + 18}" text-anchor="middle" font-size="12" fill="var(--muted)">${x}%</text>`;
+    g += `<text x="${(ml + W - mr) / 2}" y="${H - 6}" text-anchor="middle" font-size="12" font-weight="700" fill="var(--muted)">Share of supply lost</text>`;
+    g += `<line x1="${X(lost)}" x2="${X(lost)}" y1="${mt}" y2="${H - mb}" stroke="var(--digit)" stroke-width="2" stroke-dasharray="5 4"/>`;
+    g += `<path d="${path(EC)}" fill="none" stroke="var(--refine)" stroke-width="3.5" stroke-linecap="round"/>`;
+    g += `<path d="${path(EO)}" fill="none" stroke="var(--crude)" stroke-width="3.5" stroke-linecap="round"/>`;
+    if (ro <= YMAX) g += `<circle cx="${X(lost)}" cy="${Y(ro)}" r="6" fill="var(--crude)" stroke="var(--surface)" stroke-width="2"/>`;
+    g += `<circle cx="${X(lost)}" cy="${Y(rc)}" r="6" fill="var(--refine)" stroke="var(--surface)" stroke-width="2"/>`;
+    $('shock-chart').innerHTML = g;
+  }
+  sl.addEventListener('input', renderShock);
+  renderShock();
+  /* Why: generous producer */
+  const sg = $('s-gen');
+  function renderGen() {
+    const x = +sg.value;
+    $('v-gen').textContent = '$' + x;
+    $('c-sell').textContent = '$' + x;
+    $('k-prod').textContent = 'keeps $' + (x - 30);
+    $('k-trade').textContent = 'keeps $' + (100 - x);
+    $('link-trader').classList.toggle('hot', x < 100);
+    $('gen-note').innerHTML = x < 100
+      ? `Selling at $${x} gives $${100 - x} a barrel to the trader, not to you. The refinery still pays $100, because that's what it takes to outbid every other refinery for scarce oil. Your pump price doesn't change.`
+      : `At the world price, the producer keeps the extra instead of a middleman. The pump price is exactly the same either way. The only question is who gets the extra $30 a barrel: the producer, or whoever buys from it first.`;
+  }
+  sg.addEventListener('input', renderGen);
+  renderGen();
+
+  /* Why: rationing */
+  const uses = [
+    ['Ambulance', 10], ['Fire engine', 10], ['Bus route', 9], ['Farm tractor', 9], ['Food lorry', 9], ['Care worker', 9], ['Nurse commute', 9],
+    ['Delivery van', 8], ['Delivery van', 8], ['Builder’s van', 8], ['Taxi', 8], ['Plumber', 8], ['Factory', 8], ['Food lorry', 8],
+    ['Commute', 7], ['Commute', 7], ['Commute', 7], ['Commute', 7], ['Commute', 7], ['Commute', 7], ['Commute', 7], ['Commute', 7],
+    ['School run', 6], ['School run', 6], ['School run', 6], ['School run', 6], ['Hospital visit', 6], ['Shopping', 5], ['Shopping', 5], ['Shopping', 5],
+    ['Shopping', 5], ['Airline', 5], ['Airline', 5], ['Visiting family', 4], ['Visiting family', 4], ['Visiting family', 4], ['Gym trip', 3], ['Gym trip', 3],
+    ['Day out', 3], ['Day out', 3], ['Day out', 3], ['Holiday drive', 3], ['Holiday drive', 3], ['Car-share-able trip', 2], ['Car-share-able trip', 2],
+    ['Short walkable trip', 1], ['Short walkable trip', 1], ['Sunday drive', 1], ['Sunday drive', 1], ['Unneeded trip', 1],
+  ];
+  const SHORT = 3; // 6% of 50 squares
+  const usersEl = $('users');
+  uses.forEach(([name]) => { const d = document.createElement('div'); d.className = 'user'; d.textContent = name; usersEl.appendChild(d); });
+  let mode = 'market';
+  let capPick = [7, 15, 0]; // a first queue: delivery van, commute, ambulance
+  const marketPick = uses.map((u, i) => [u[1], i]).sort((a, b) => a[0] - b[0] || b[1] - a[1]).slice(0, SHORT).map((x) => x[1]);
+  function shuffle() {
+    const idx = [...uses.keys()];
+    for (let i = idx.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+    capPick = idx.slice(0, SHORT);
+  }
+  function renderRation() {
+    const pick = mode === 'market' ? marketPick : capPick;
+    [...usersEl.children].forEach((el, i) => {
+      el.classList.toggle('cut', mode === 'market' && pick.includes(i));
+      el.classList.toggle('dry', mode === 'cap' && pick.includes(i));
+    });
+    $('mode-market').setAttribute('aria-pressed', String(mode === 'market'));
+    $('mode-cap').setAttribute('aria-pressed', String(mode === 'cap'));
+    $('reshuffle').hidden = mode !== 'cap';
+    $('r-price').textContent = mode === 'market' ? '$100' : '$70';
+    const names = pick.map((i) => uses[i][0].toLowerCase());
+    $('r-text').innerHTML = mode === 'market'
+      ? `<b>The price rises until enough people choose to cut back.</b><span>The ones who stop first are the uses people value least: ${names.join(', ')}. Everything essential keeps running, but everyone pays more.</span>`
+      : `<b>The price stays low, so nobody has a reason to cut back.</b><span>Pumps run dry and it comes down to who gets to the forecourt first. This time it was: ${names.join(', ')}. Expect queues and panic buying, as in the 1970s oil crisis and the UK's 2021 fuel panic.</span>`;
+  }
+  $('mode-market').addEventListener('click', () => { mode = 'market'; renderRation(); });
+  $('mode-cap').addEventListener('click', () => { mode = 'cap'; renderRation(); });
+  $('reshuffle').addEventListener('click', () => { shuffle(); renderRation(); });
+  renderRation();
+  /* Live prices: data/prices.json is refreshed daily by scripts/update-prices.mjs */
+  const fmtDate = (d) => new Date(d).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const niceStep = (x) => { const p = Math.pow(10, Math.floor(Math.log10(x || 1))); return [1, 2, 2.5, 5, 10].map((m) => m * p).find((v) => v >= x); };
+
+  function lineChart(id, series, o) {
+    const W = 640, H = 250, ml = 52, mr = 64, mt = 16, mb = 30;
+    const t = (d) => Date.parse(d);
+    const all = series.flatMap((s) => s.pts);
+    const t0 = Math.min(...all.map((p) => t(p[0]))), t1 = Math.max(...all.map((p) => t(p[0])));
+    let lo = Math.min(...all.map((p) => p[1])), hi = Math.max(...all.map((p) => p[1]));
+    const step = niceStep((hi - lo) / 4 || 1);
+    lo = Math.floor(lo / step) * step; hi = Math.ceil(hi / step) * step;
+    const X = (d) => ml + (t(d) - t0) / ((t1 - t0) || 1) * (W - ml - mr);
+    const Y = (v) => H - mb - (v - lo) / ((hi - lo) || 1) * (H - mt - mb);
+    let g = '';
+    for (let v = lo; v <= hi + 1e-9; v += step) {
+      g += `<line x1="${ml}" x2="${W - mr}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/>`;
+      g += `<text x="${ml - 8}" y="${Y(v) + 4}" text-anchor="end" font-size="12" fill="var(--muted)">${o.yfmt(v)}</text>`;
+    }
+    const m = new Date(t0); m.setUTCDate(1); m.setUTCMonth(m.getUTCMonth() + 1);
+    const every = (t1 - t0) > 200 * 864e5 ? 2 : 1;
+    for (let i = 0; m.getTime() <= t1; i++, m.setUTCMonth(m.getUTCMonth() + 1)) {
+      if (i % every) continue;
+      const lab = m.toLocaleDateString('en-GB', { month: 'short', timeZone: 'UTC' }) + (m.getUTCMonth() === 0 ? ' ' + m.getUTCFullYear() : '');
+      g += `<text x="${X(m.toISOString())}" y="${H - 8}" text-anchor="middle" font-size="12" fill="var(--muted)">${lab}</text>`;
+    }
+    if (o.marker && t(o.marker[0]) >= t0 && t(o.marker[0]) <= t1) {
+      const x = X(o.marker[0]);
+      g += `<line x1="${x}" x2="${x}" y1="${mt}" y2="${H - mb}" stroke="var(--up)" stroke-width="1.5" stroke-dasharray="4 4"/>`;
+      g += `<text x="${x - 6}" y="${mt + 10}" text-anchor="end" font-size="12" font-weight="700" fill="var(--up)">${o.marker[1]}</text>`;
+    }
+    series.forEach((s) => {
+      const line = s.pts.map((p) => `${X(p[0]).toFixed(1)},${Y(p[1]).toFixed(1)}`).join(' L');
+      if (series.length === 1) g += `<path d="M${line} L${X(s.pts.at(-1)[0])},${Y(lo)} L${X(s.pts[0][0])},${Y(lo)} Z" fill="${s.color}" opacity=".12"/>`;
+      g += `<path d="M${line}" fill="none" stroke="${s.color}" stroke-width="2.5" stroke-linejoin="round"/>`;
+      const last = s.pts.at(-1);
+      g += `<circle cx="${X(last[0])}" cy="${Y(last[1])}" r="5" fill="${s.color}" stroke="var(--surface)" stroke-width="2"/>`;
+      g += `<text x="${X(last[0]) + 9}" y="${Y(last[1]) + 4}" font-size="13" font-weight="700" fill="${s.color}">${s.fmt(last[1])}</text>`;
+    });
+    $(id).innerHTML = g;
+  }
+
+  function applyLive(d) {
+    const petrol = d.pump.petrol, diesel = d.pump.diesel;
+    DUTY = d.duty ?? DUTY;
+    $('duty-note').textContent = DUTY.toFixed(2);
+
+    $('hero-petrol').textContent = p1(petrol);
+    $('hero-diesel').textContent = p1(diesel);
+    $('hero-eyebrow').textContent = 'UK petrol · ' + fmtDate(d.pump.asOf);
+    const rise = petrol - FEB_PETROL;
+    $('hero-title').textContent = rise >= 5
+      ? `Petrol is up ${Math.round(rise)}p a litre. Oil companies' profits have soared. Are they ripping us off?`
+      : 'Petrol is back near pre-war prices. But oil companies made huge profits. Were they ripping us off?';
+    $('chain-pump').textContent = Math.round(petrol) + 'p';
+    const tank = (x) => '£' + Math.round(Math.abs(x) * 55 / 100);
+    $('who-drivers').textContent = rise > 0
+      ? `About ${tank(rise)} more to fill a 55-litre petrol tank than in February, and about ${tank(diesel - FEB_DIESEL)} more for diesel.`
+      : 'Prices are back to around February levels, but drivers paid far more for months.';
+
+    // "Today" preset: live crude and exchange rate; refining is whatever is left of today's pump price.
+    const brentR = Math.round(d.brent.price * 2) / 2, fxR = Math.round(d.fx.usdPerGbp * 100) / 100;
+    const crude = brentR / fxR / LITRES * 100;
+    const refine = Math.round((petrol / (1 + VAT) - DUTY - crude - DELIVER - presets.now.retail) * 10) / 10;
+    presets.now = { brent: brentR, fx: fxR, refine: Math.min(45, Math.max(5, refine)), retail: presets.now.retail, duty: DUTY };
+    $('pre-now').textContent = 'Today (' + new Date(d.pump.asOf).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' }) + ')';
+    if ($('pre-now').getAttribute('aria-pressed') === 'true') applyPreset('now'); else renderLitre();
+    const rn = compute(presets.now);
+    if (rn.total - base.total > 3) $('refine-share').textContent = 'about ' + Math.round((rn.refine - base.refine) * (1 + VAT) / (rn.total - base.total) * 100) + '%';
+
+    $('s-barrel').value = brentR;
+    renderBarrel();
+
+    const brands = d.pump.sources.map((x) => x.brand).join(', ');
+    const ageH = (Date.now() - Date.parse(d.pump.asOf)) / 36e5;
+    $('live').className = 'live ' + (ageH < 72 ? 'on' : 'stale');
+    $('live-text').textContent = `Live prices: average of ${d.pump.stations.toLocaleString('en-GB')} forecourts, updated ${fmtDate(d.pump.asOf)}. Brent crude $${d.brent.price.toFixed(2)}, £1 = $${d.fx.usdPerGbp.toFixed(2)}.` + (ageH >= 72 ? ' These prices are a few days old.' : '');
+    $('foot-data').textContent = `Live pump prices are the average across forecourts that publish open price data (${brands}), so they can differ slightly from RAC figures. February comparison figures are RAC averages. The split between crude, refining and retail is an estimate: refining is worked out as what's left after crude, tax, delivery and an estimated ${presets.now.retail}p forecourt margin. Fuel duty is shown at ${DUTY.toFixed(2)}p a litre.`;
+
+    const bh = d.brent.history;
+    if (bh && bh.length > 10) {
+      lineChart('brent-chart', [{ pts: bh, color: 'var(--crude)', fmt: (v) => '$' + v.toFixed(0) }], { yfmt: (v) => '$' + v, marker: ['2026-02-28', 'Iran conflict begins'] });
+      $('brent-cap').textContent = `A barrel cost $${bh[0][1].toFixed(0)} on ${fmtDate(bh[0][0])} and $${d.brent.price.toFixed(2)} today. The jump at the end of February is shipping through the Strait of Hormuz being cut off.`;
+      $('brent-panel').hidden = false;
+    }
+    const ph = d.history || [];
+    if (ph.length >= 14) {
+      lineChart('pump-chart', [
+        { pts: ph.map((h) => [h.date, h.petrol]), color: 'var(--retail)', fmt: (v) => v.toFixed(1) + 'p' },
+        { pts: ph.map((h) => [h.date, h.diesel]), color: 'var(--tax)', fmt: (v) => v.toFixed(1) + 'p' },
+      ], { yfmt: (v) => v + 'p' });
+      $('pump-panel').hidden = false;
+    }
+  }
+
+  fetch('data/prices.json', { cache: 'no-cache' })
+    .then((r) => (r.ok ? r.json() : Promise.reject(new Error('HTTP ' + r.status))))
+    .then(applyLive)
+    .catch(() => { $('live-text').textContent = "Showing RAC averages from 28 September 2026. Today's live prices couldn't be loaded."; });
+})();
+
+
+</script>
+</body>
+</html>
